@@ -250,18 +250,22 @@ export default function DashboardPage() {
 function ActiveChallengeCard({ challenge }: { challenge: any }) {
     const { toast } = useToast();
 
-    // Calculate days passed and remaining (30-day challenge)
-    const createdAtMillis = challenge.createdAt?.toMillis ? challenge.createdAt.toMillis() : (challenge.createdAt || Date.now());
-    const daysPassed = Math.floor((Date.now() - createdAtMillis) / (1000 * 60 * 60 * 24));
-    const remainingDays = Math.max(0, 30 - daysPassed);
+    // Fix NaN: Safely parse createdAt, handling both Firestore Timestamp and ISO Strings
+    const createdAtMillis = challenge.createdAt?.seconds
+        ? challenge.createdAt.seconds * 1000
+        : new Date(challenge.createdAt || Date.now()).getTime();
+
+    // Calculate day index (Day 1 is the first 24h)
+    const dayIndex = Math.floor((Date.now() - createdAtMillis) / (1000 * 60 * 60 * 24)) + 1;
+    const remainingDays = Math.max(0, 30 - dayIndex + 1);
 
     // MVP Fake progression data
-    const progressPercent = Math.min(100, (daysPassed / 30) * 100);
+    const progressPercent = Math.min(100, (dayIndex / 30) * 100);
 
     // Simulated Matching Logic
     const isMatching = challenge.isMatching;
-    const isDayTwoRelaxed = isMatching && daysPassed >= 1;
-    const simulatedMembers = isDayTwoRelaxed ? "5명 (80~95% 유사 그룹 병합)" : "1명";
+    const isDayTwoRelaxed = isMatching && dayIndex >= 2;
+    const simulatedMembers = isDayTwoRelaxed ? "5 members (merged)" : "3 members";
 
     // Checking if photo upload is allowed right now
     const canUpload = true;
@@ -283,8 +287,8 @@ function ActiveChallengeCard({ challenge }: { challenge: any }) {
                         <div className="mb-2">My Pledge: ${challenge.entryFee} ({challenge.targetSuccessRate}% Target Group)</div>
                         {isMatching && (
                             <div className="text-primary font-semibold text-sm bg-primary/10 p-2 rounded-md inline-block">
-                                ⏳ 팀원 매칭 중... (현재 {simulatedMembers})
-                                {!isDayTwoRelaxed ? " - 2일차에는 최소 5명 팀을 위해 유사 목표 그룹과 자동 병합됩니다." : ""}
+                                ⏳ Matching team... (Currently {simulatedMembers})
+                                {!isDayTwoRelaxed ? " - Will automatically merge with similar target groups after Day 2 for at least 5 members." : ""}
                             </div>
                         )}
                     </CardDescription>
@@ -313,12 +317,51 @@ function ActiveChallengeCard({ challenge }: { challenge: any }) {
                 </div>
 
                 {/* My Progress */}
-                <div className="mb-10">
+                <div className="mb-8">
                     <div className="flex justify-between text-sm font-medium mb-3">
-                        <span>My Streak: <span className="text-primary font-bold">5 days</span></span>
-                        <span className="text-muted-foreground">10 / 30 days</span>
+                        <span>My Streak: <span className="text-primary font-bold">{dayIndex} days</span></span>
+                        <span className="text-muted-foreground">{dayIndex} / 30 days</span>
                     </div>
-                    <Progress value={progressPercent} className="h-3" />
+                    <Progress value={progressPercent} className="h-3 mb-6" />
+
+                    {/* 30-Day Grid Board */}
+                    <div className="bg-muted/30 p-4 rounded-xl border border-border/50">
+                        <h5 className="font-semibold text-sm mb-3 text-muted-foreground flex items-center gap-2">
+                            <CheckCircle2 className="w-4 h-4" /> 30-Day Verification Board
+                        </h5>
+                        <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-10 gap-2">
+                            {Array.from({ length: 30 }).map((_, i) => {
+                                const dayNum = i + 1;
+                                const isToday = dayNum === dayIndex;
+                                const isPast = dayNum < dayIndex;
+
+                                // Mock that Day 1 has an uploaded image and a stamp
+                                const hasUploadedDay1 = dayNum === 1;
+
+                                return (
+                                    <div key={i} className={`aspect-square rounded-md border flex flex-col items-center justify-center relative overflow-hidden ${isToday ? 'border-primary ring-1 ring-primary/50 bg-primary/5' : isPast ? 'bg-muted/50' : 'bg-card'}`}>
+                                        <span className="absolute top-1 left-1.5 text-[10px] font-bold text-muted-foreground/70 z-10">{dayNum}</span>
+                                        {hasUploadedDay1 ? (
+                                            <>
+                                                <img src="https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=100&h=100&fit=crop" alt="Day 1" className="w-full h-full object-cover opacity-70" />
+                                                <div className="absolute inset-0 flex items-center justify-center z-20">
+                                                    <div className="bg-green-500 text-white text-[9px] font-extrabold px-1 py-0.5 rounded-sm transform -rotate-12 border border-green-600 shadow-sm leading-none">
+                                                        VERIFIED
+                                                    </div>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            isToday ? (
+                                                <div className="text-primary text-[10px] items-center text-center font-bold px-1 leading-tight animate-pulse mt-2">Today</div>
+                                            ) : (
+                                                <div className="w-1.5 h-1.5 rounded-full bg-border mt-2"></div>
+                                            )
+                                        )}
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </div>
                 </div>
 
                 {/* Team Status Board */}
@@ -327,10 +370,19 @@ function ActiveChallengeCard({ challenge }: { challenge: any }) {
                         <Users className="w-5 h-5" /> Team Status Board
                     </h4>
                     {challenge.isMatching ? (
-                        <div className="p-8 text-center bg-secondary/10 rounded-2xl border border-dashed border-border/60">
-                            <Clock className="w-8 h-8 mx-auto mb-3 text-muted-foreground animate-pulse" />
-                            <h5 className="font-semibold text-lg mb-1">Currently matching...</h5>
-                            <p className="text-sm text-muted-foreground">Team members are being gathered. You can still verify your habit today!</p>
+                        <div className="p-6 bg-secondary/10 rounded-2xl border border-dashed border-border/60">
+                            <div className="flex items-center gap-3 mb-4">
+                                <Clock className="w-6 h-6 text-primary animate-pulse" />
+                                <div>
+                                    <h5 className="font-semibold text-lg text-foreground">Matching in Progress...</h5>
+                                    <p className="text-sm text-muted-foreground">Currently matched with 2 users with a similar 80-90% target rate.</p>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
+                                <TeamMemberCard name="Me" status="success" streak={dayIndex} />
+                                <TeamMemberCard name="IronMan (85%)" status="pending" streak={0} />
+                                <TeamMemberCard name="SleepyDog (90%)" status="pending" streak={0} />
+                            </div>
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
