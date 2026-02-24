@@ -220,7 +220,7 @@ export default function NewChallengePage() {
                             <h4 className="font-semibold mb-2">Please Read</h4>
                             <ul className="text-sm space-y-2 text-muted-foreground list-disc list-inside">
                                 <li>Pledge is fully refunded upon 100% challenge completion.</li>
-                                <li>Failing participants' pledges are distributed to survivors minus a 10% platform fee.</li>
+                                <li>Failing participants&apos; pledges are distributed to survivors minus a 10% platform fee.</li>
                                 <li>If any external transaction fees apply, payouts will be processed after deducting those fees.</li>
                                 <li>Team formation (12 players) may take <b>1+ days</b>. You can start verifying immediately.</li>
                             </ul>
