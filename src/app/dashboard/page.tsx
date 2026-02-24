@@ -76,7 +76,7 @@ export default function DashboardPage() {
 
     const handleRefundRequest = async () => {
         if (!user) return;
-        if (!confirm("관리자에게 $50.00 참가금 환불을 요청하시겠습니까? (데모에서는 취소할 수 없습니다)")) return;
+        if (!confirm("Are you sure you want to request a $50.00 refund from the admin? (Cannot be canceled in demo)")) return;
 
         try {
             await addDoc(collection(db, "withdrawals"), {

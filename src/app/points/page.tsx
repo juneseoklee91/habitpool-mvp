@@ -49,17 +49,17 @@ export default function PointsWalletPage() {
         if (!user || !profile) return;
 
         if (requestAmount < 50) {
-            toast({ title: "오류", description: "최소 출금 가능 금액은 $50입니다.", variant: "destructive" });
+            toast({ title: "Error", description: "Minimum withdrawal amount is $50.", variant: "destructive" });
             return;
         }
 
         if (requestAmount > profile.pointBalance) {
-            toast({ title: "잔액 부족", description: "보유 포인트가 요청 금액보다 적습니다.", variant: "destructive" });
+            toast({ title: "Insufficient Balance", description: "Your point balance is less than the requested amount.", variant: "destructive" });
             return;
         }
 
         if (!paypalEmail.includes("@")) {
-            toast({ title: "이메일 형식 오류", description: "정확한 PayPal 이메일 주소를 입력해주세요.", variant: "destructive" });
+            toast({ title: "Invalid Email", description: "Please enter a valid PayPal email address.", variant: "destructive" });
             return;
         }
 
@@ -78,7 +78,7 @@ export default function PointsWalletPage() {
             const userRef = doc(db, "users", user.uid);
             await updateDoc(userRef, { paypalEmail });
 
-            toast({ title: "출금 요청 완료", description: "요청이 관리자에게 전송되었습니다. 검토 후 PayPal로 송금됩니다." });
+            toast({ title: "Request Submitted", description: "Your request has been sent to the admin. Funds will be transferred to your PayPal after review." });
 
             // Optimistic update of UI
             setWithdrawals(prev => [{
@@ -90,21 +90,21 @@ export default function PointsWalletPage() {
             }, ...prev]);
 
         } catch (error) {
-            toast({ title: "요청 실패", description: "네트워크 오류가 발생했습니다.", variant: "destructive" });
+            toast({ title: "Request Failed", description: "A network error occurred.", variant: "destructive" });
         } finally {
             setIsSubmitting(false);
         }
     };
 
     const handleCancelRequest = async (id: string, amount: number) => {
-        if (!confirm("출금 요청을 취소하시겠습니까? 포인트가 다시 복구됩니다.")) return;
+        if (!confirm("Are you sure you want to cancel the request? Points will be restored locally in this demo.")) return;
         try {
             await deleteDoc(doc(db, "withdrawals", id));
             // Restore points in UI locally (mock level)
-            toast({ title: "요청 취소 완료", description: "출금 요청이 취소되었습니다." });
+            toast({ title: "Request Canceled", description: "Your withdrawal request was successfully canceled." });
             setWithdrawals(prev => prev.filter(w => w.id !== id));
         } catch (error) {
-            toast({ title: "취소 실패", description: "네트워크 오류가 발생했습니다.", variant: "destructive" });
+            toast({ title: "Cancellation Failed", description: "A network error occurred.", variant: "destructive" });
         }
     };
 
@@ -121,14 +121,14 @@ export default function PointsWalletPage() {
 
     return (
         <div className="container py-8 max-w-4xl mx-auto px-4">
-            <h1 className="text-3xl font-bold tracking-tight mb-8">포인트 지갑</h1>
+            <h1 className="text-3xl font-bold tracking-tight mb-8">Points Wallet</h1>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
                 <Card className="bg-gradient-to-br from-primary/10 to-transparent border-primary/20">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-xl flex items-center gap-2">
                             <Wallet className="w-5 h-5 text-primary" />
-                            보유 리워드 포인트
+                            Reward Points Balance
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -136,20 +136,20 @@ export default function PointsWalletPage() {
                             ${profile.pointBalance.toLocaleString()}
                         </div>
                         <p className="text-sm text-muted-foreground">
-                            출금 가능 최소 잔액: $50
+                            Minimum withdrawal balance: $50
                         </p>
                     </CardContent>
                 </Card>
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>출금 요청</CardTitle>
-                        <CardDescription>보유한 포인트를 PayPal 계정으로 출금합니다.</CardDescription>
+                        <CardTitle>Request Withdrawal</CardTitle>
+                        <CardDescription>Withdraw your points to your PayPal account.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleWithdrawalRequest} className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="email">PayPal 이메일</Label>
+                                <Label htmlFor="email">PayPal Email</Label>
                                 <Input
                                     id="email"
                                     type="email"
@@ -160,7 +160,7 @@ export default function PointsWalletPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="amount">출금 요청 금액 ($)</Label>
+                                <Label htmlFor="amount">Request Amount ($)</Label>
                                 <div className="flex items-center gap-2">
                                     <Input
                                         id="amount"
@@ -172,19 +172,19 @@ export default function PointsWalletPage() {
                                         onChange={(e) => setRequestAmount(Number(e.target.value))}
                                     />
                                     <Button type="button" variant="secondary" onClick={() => setRequestAmount(profile.pointBalance)}>
-                                        전액
+                                        Max
                                     </Button>
                                 </div>
                             </div>
 
                             {!canWithdraw && (
                                 <div className="flex items-center gap-2 text-sm text-yellow-500/90 bg-yellow-500/10 p-2 rounded-lg mt-2">
-                                    <AlertCircle className="w-4 h-4" /> 포인트가 $50 이상부터 출금이 가능합니다.
+                                    <AlertCircle className="w-4 h-4" /> You can withdraw points when balance is $50 or more.
                                 </div>
                             )}
 
                             <Button type="submit" className="w-full mt-2" disabled={!canWithdraw || isSubmitting}>
-                                {isSubmitting ? "요청 중..." : "출금 요청하기"}
+                                {isSubmitting ? "Requesting..." : "Request Withdrawal"}
                             </Button>
                         </form>
                     </CardContent>
@@ -192,13 +192,13 @@ export default function PointsWalletPage() {
             </div>
 
             <h2 className="text-2xl font-bold tracking-tight mb-4 flex items-center gap-2">
-                <History className="w-5 h-5" /> 출금 내역
+                <History className="w-5 h-5" /> History
             </h2>
 
             {withdrawals.length === 0 ? (
                 <Card className="text-center py-12 bg-muted/20 border-dashed">
                     <CardContent>
-                        <p className="text-muted-foreground">기록된 출금 요청 내역이 없습니다.</p>
+                        <p className="text-muted-foreground">No withdrawal history.</p>
                     </CardContent>
                 </Card>
             ) : (
@@ -207,9 +207,9 @@ export default function PointsWalletPage() {
                         <Card key={w.id} className="p-4 flex items-center justify-between bg-card text-sm sm:text-base">
                             <div>
                                 <div className="font-semibold flex items-center gap-2">
-                                    ${w.amount} {w.type === "refund" ? "환불 요청" : "출금 요청"}
-                                    {w.type === "refund" && <span className="text-[10px] text-red-600 bg-red-100 px-1.5 py-0.5 rounded border border-red-200">참가금 환불</span>}
-                                    {(!w.type || w.type === "reward") && <span className="text-[10px] text-green-600 bg-green-100 px-1.5 py-0.5 rounded border border-green-200">상금 출금</span>}
+                                    ${w.amount} {w.type === "refund" ? "Refund Request" : "Withdrawal Request"}
+                                    {w.type === "refund" && <span className="text-[10px] text-red-600 bg-red-100 px-1.5 py-0.5 rounded border border-red-200">Pledge Refund</span>}
+                                    {(!w.type || w.type === "reward") && <span className="text-[10px] text-green-600 bg-green-100 px-1.5 py-0.5 rounded border border-green-200">Reward Claim</span>}
                                 </div>
                                 <div className="text-muted-foreground text-xs">{w.paypalEmail}</div>
                             </div>
@@ -217,7 +217,7 @@ export default function PointsWalletPage() {
                             <div className="text-right">
                                 <StatusBadge status={w.status} />
                                 <div className="text-muted-foreground text-xs mt-1">
-                                    {w.requestedAt?.toDate ? w.requestedAt.toDate().toLocaleDateString() : '방금 전'}
+                                    {w.requestedAt?.toDate ? w.requestedAt.toDate().toLocaleDateString() : 'Just now'}
                                 </div>
                                 {w.status === "requested" && (
                                     <Button
@@ -226,7 +226,7 @@ export default function PointsWalletPage() {
                                         className="h-7 mt-2 text-xs text-red-500 hover:text-red-600 hover:bg-red-50"
                                         onClick={() => handleCancelRequest(w.id, w.amount)}
                                     >
-                                        요청 취소
+                                        Cancel Request
                                     </Button>
                                 )}
                             </div>
@@ -240,10 +240,10 @@ export default function PointsWalletPage() {
 
 function StatusBadge({ status }: { status: string }) {
     const map: Record<string, { label: string, color: string }> = {
-        requested: { label: "검토 대기중", color: "bg-yellow-500/20 text-yellow-600 border-yellow-500/30" },
-        approved: { label: "송금 대기 (승인됨)", color: "bg-blue-500/20 text-blue-600 border-blue-500/30" },
-        completed: { label: "송금 완료", color: "bg-green-500/20 text-green-600 border-green-500/30" },
-        rejected: { label: "반려됨", color: "bg-red-500/20 text-red-600 border-red-500/30" }
+        requested: { label: "Pending Review", color: "bg-yellow-500/20 text-yellow-600 border-yellow-500/30" },
+        approved: { label: "Pending Transfer (Approved)", color: "bg-blue-500/20 text-blue-600 border-blue-500/30" },
+        completed: { label: "Transfer Completed", color: "bg-green-500/20 text-green-600 border-green-500/30" },
+        rejected: { label: "Rejected", color: "bg-red-500/20 text-red-600 border-red-500/30" }
     };
 
     const display = map[status] || { label: status, color: "bg-secondary text-muted-foreground" };

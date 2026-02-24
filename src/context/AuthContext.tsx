@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { auth, db } from "@/lib/firebase";
 import { User, onAuthStateChanged } from "@/lib/firebase";
-import { doc, getDoc, setDoc } from "@/lib/firebase";
+import { doc, getDoc, setDoc, updateDoc } from "@/lib/firebase";
 
 interface UserProfile {
     email: string;
@@ -43,7 +43,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     const docSnap = await getDoc(userRef);
 
                     if (docSnap.exists()) {
-                        setProfile(docSnap.data() as UserProfile);
+                        const data = docSnap.data() as UserProfile;
+                        if (firebaseUser.email === "admin@habitpool.com" && data.role !== "admin") {
+                            data.role = "admin";
+                            await updateDoc(userRef, { role: "admin" });
+                        }
+                        setProfile(data);
                     } else {
                         // Typically created during signup, but fallback here
                         const defaultProfile: UserProfile = {
@@ -51,7 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                             nickname: firebaseUser.displayName || firebaseUser.email?.split("@")[0] || "User",
                             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                             pointBalance: 0,
-                            role: "user",
+                            role: firebaseUser.email === "admin@habitpool.com" ? "admin" : "user",
                         };
                         await setDoc(userRef, defaultProfile);
                         setProfile(defaultProfile);

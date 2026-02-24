@@ -20,17 +20,17 @@ export function Header() {
                     </span>
                 </Link>
                 <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-                    <nav className="flex items-center space-x-6 text-sm font-medium">
+                    <nav className="flex items-center space-x-4 md:space-x-6 text-sm font-medium">
                         {user && (
                             <>
-                                <Link href="/dashboard" className="transition-colors hover:text-foreground/80 text-foreground/60 hidden md:block">
+                                <Link href="/dashboard" className="transition-colors hover:text-foreground/80 text-foreground/60">
                                     Dashboard
                                 </Link>
-                                <Link href="/points" className="transition-colors hover:text-foreground/80 text-foreground/60 hidden md:block">
+                                <Link href="/points" className="transition-colors hover:text-foreground/80 text-foreground/60">
                                     My Wallet
                                 </Link>
                                 {profile?.role === "admin" && (
-                                    <Link href="/admin" className="transition-colors hover:text-foreground/80 text-foreground/60 hidden lg:block text-red-500 font-bold">
+                                    <Link href="/admin" className="transition-colors hover:text-foreground/80 text-foreground/60 text-red-500 font-bold">
                                         Admin
                                     </Link>
                                 )}
