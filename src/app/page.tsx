@@ -56,7 +56,7 @@ export default function Home() {
                   <h3 className="text-xl font-bold mb-1">Morning Workout</h3>
                   <p className="text-sm text-muted-foreground mb-4">Pledge: $50.00</p>
                   <div className="p-4 rounded-xl bg-muted/30 border border-white/5 flex justify-between items-center">
-                    <span className="text-sm font-semibold">Today's Verification</span>
+                    <span className="text-sm font-semibold">Today&apos;s Verification</span>
                     <Button size="sm" className="rounded-full shadow-md"><Camera className="w-4 h-4 mr-2" /> Upload</Button>
                   </div>
                 </div>
