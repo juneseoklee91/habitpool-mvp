@@ -77,7 +77,7 @@ export default function VerifyPage() {
 
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-2xl">Today's Habit Verification</CardTitle>
+                    <CardTitle className="text-2xl">Today&apos;s Habit Verification</CardTitle>
                     <CardDescription>
                         Take a photo of your practice and upload it. It will be strictly verified based on server time.
                     </CardDescription>

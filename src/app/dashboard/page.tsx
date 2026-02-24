@@ -125,7 +125,7 @@ export default function DashboardPage() {
                                 🎉 Challenge 100% Successful & Settled!
                             </h2>
                             <p className="text-muted-foreground mt-1 text-sm md:text-base">
-                                The 30-day <strong className="text-foreground">"30-min Morning Workout"</strong> challenge is complete. Points have been credited to your wallet.
+                                The 30-day <strong className="text-foreground">&quot;30-min Morning Workout&quot;</strong> challenge is complete. Points have been credited to your wallet.
                             </p>
                         </div>
                     </div>
@@ -202,7 +202,7 @@ export default function DashboardPage() {
                         <AlertCircle className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
                         <h3 className="text-xl font-semibold mb-2">No active challenges.</h3>
                         <p className="text-muted-foreground mb-6">
-                            You haven't joined any challenges or are still in the queue.
+                            You haven&apos;t joined any challenges or are still in the queue.
                             <br />
                             Join now to earn from the reward pool!
                         </p>
@@ -276,7 +276,7 @@ function ActiveChallengeCard({ challenge }: { challenge: any }) {
                 {/* Upload Section */}
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-8 bg-card rounded-2xl border border-border/50 shadow-sm p-6">
                     <div className="text-center sm:text-left">
-                        <h4 className="text-lg font-bold mb-1">Today's Verification</h4>
+                        <h4 className="text-lg font-bold mb-1">Today&apos;s Verification</h4>
                         <p className="text-sm text-muted-foreground">
                             {challenge.type === "wakeup" ? "Upload within the designated 1 hour!" : "Upload a photo before midnight to verify."}
                         </p>

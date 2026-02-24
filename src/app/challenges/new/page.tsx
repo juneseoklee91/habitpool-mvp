@@ -175,7 +175,7 @@ export default function NewChallengePage() {
                                     ))}
                                 </select>
                                 <p className="text-xs text-muted-foreground mt-2">
-                                    The "Midnight" and "Wake-up time" deadlines will be based on this timezone.
+                                    The &quot;Midnight&quot; and &quot;Wake-up time&quot; deadlines will be based on this timezone.
                                 </p>
                             </div>
                         </div>

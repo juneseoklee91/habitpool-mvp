@@ -17,7 +17,7 @@ export default function Home() {
             <span className="text-primary">even when you want to quit.</span>
           </h1>
           <p className="mt-6 text-lg sm:text-xl leading-relaxed text-muted-foreground max-w-2xl mx-auto mb-10">
-            Pledge any amount and prove your commitment with daily verifications for a month. A portion of the failing participants' entry fees is distributed as a reward to successful team members.
+            Pledge any amount and prove your commitment with daily verifications for a month. A portion of the failing participants&apos; entry fees is distributed as a reward to successful team members.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button size="lg" className="h-14 px-8 text-lg w-full sm:w-auto font-medium rounded-full" asChild>
@@ -46,7 +46,7 @@ export default function Home() {
               A Challenge Focused Only on Results
             </h2>
             <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-              No unnecessary socialization. Stay motivated by looking at your team's live performance board and achieve your goals.
+              No unnecessary socialization. Stay motivated by looking at your team&apos;s live performance board and achieve your goals.
             </p>
           </div>
 
