@@ -101,7 +101,7 @@ export default function Home() {
                 <div className="w-12 h-12 rounded-2xl bg-primary/20 text-primary flex items-center justify-center text-xl font-black">1</div>
                 <h3 className="text-3xl font-bold">Choose Your Pledge</h3>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Put money on the line to match your willpower. You can set your pledge starting from $10. The more you don&apos;t want to lose, the exponentially higher your success rate becomes.
+                  Put money on the line to match your willpower. You can set your pledge starting from $10. The more you don&apos;t want to lose, the exponentially higher your success rate becomes. Achieve your goal to get your pledge fully refunded, plus earn additional rewards.
                 </p>
               </div>
               <div className="flex-1 w-full">
