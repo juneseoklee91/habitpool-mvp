@@ -154,7 +154,7 @@ export default function AdminDashboard() {
                                                     <div className="flex gap-2">
                                                         {(!w.type || w.type === "reward") ? (
                                                             <Button size="sm" variant="outline" className="border-blue-500 text-blue-600 bg-blue-50 hover:bg-blue-100" asChild>
-                                                                <a href={`https://www.paypal.com/myaccount/transfer/homepage?recipient=${w.paypalEmail}&amount=${w.amount}`} target="_blank" rel="noreferrer">
+                                                                <a href={`https://www.paypal.com/myaccount/transfer/homepage/buy/preview?amount=${w.amount}&currency=USD&recipient=${w.paypalEmail}`} target="_blank" rel="noreferrer">
                                                                     1-Click PayPal Transfer
                                                                 </a>
                                                             </Button>
