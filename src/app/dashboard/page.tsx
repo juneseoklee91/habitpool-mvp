@@ -345,45 +345,49 @@ function ActiveChallengeCard({ challenge }: { challenge: any }) {
                             <CheckCircle2 className="w-4 h-4" /> 30-Day Verification Board
                         </h5>
                         <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-10 gap-2">
-                            {Array.from({ length: 30 }).map((_, i) => {
-                                const dayNum = i + 1;
-                                const isToday = dayNum === dayIndex;
-                                const isPast = dayNum < dayIndex;
+                            {(() => {
+                                const requiredDays = Math.ceil(30 * ((challenge.targetSuccessRate || 80) / 100));
+                                const successCount = challenge.userVerifications?.filter((v: any) => v.status === "success").length || 0;
+                                const hasMetTarget = successCount >= requiredDays;
 
-                                // Find if there's a verification for this specific day index
-                                // Relies on the parent component passing userVerifications. In MVP, we map by the date it was uploaded
-                                // For MVP demo, check if verifications exist and match the relative day
-                                const dayVerification = challenge.userVerifications?.find((v: any) => {
-                                    const vDate = v.verifiedAt?.seconds ? v.verifiedAt.seconds * 1000 : new Date(v.verifiedAt || v.deviceTime).getTime();
-                                    const vDayIndex = Math.floor((vDate - createdAtMillis) / (1000 * 60 * 60 * 24)) + 1;
-                                    return vDayIndex === dayNum;
-                                });
+                                return Array.from({ length: 30 }).map((_, i) => {
+                                    const dayNum = i + 1;
+                                    const isToday = dayNum === dayIndex;
+                                    const isPast = dayNum < dayIndex;
 
-                                const hasUploaded = !!dayVerification;
+                                    const dayVerification = challenge.userVerifications?.find((v: any) => {
+                                        const vDate = v.verifiedAt?.seconds ? v.verifiedAt.seconds * 1000 : new Date(v.verifiedAt || v.deviceTime).getTime();
+                                        const vDayIndex = Math.floor((vDate - createdAtMillis) / (1000 * 60 * 60 * 24)) + 1;
+                                        return vDayIndex === dayNum;
+                                    });
 
-                                return (
-                                    <div key={i} className={`aspect-square rounded-md border flex flex-col items-center justify-center relative overflow-hidden ${isToday ? 'border-primary ring-1 ring-primary/50 bg-primary/5' : isPast ? 'bg-muted/50' : 'bg-card'}`}>
-                                        <span className={`absolute top-1 left-1.5 text-[10px] font-bold z-10 ${hasUploaded ? 'text-white drop-shadow-md' : 'text-muted-foreground/70'}`}>{dayNum}</span>
-                                        {hasUploaded ? (
-                                            <>
-                                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                <img src={dayVerification.photoUrl} alt={`Day ${dayNum}`} className="w-full h-full object-cover opacity-90" />
-                                                <div className="absolute inset-0 flex items-center justify-center z-20">
-                                                    <div className="bg-green-500 text-white text-[9px] font-extrabold px-1 py-0.5 rounded-sm transform -rotate-12 border border-green-600 shadow-sm leading-none">
-                                                        VERIFIED
+                                    const hasUploaded = !!dayVerification;
+                                    const isFailed = dayVerification?.status === "failed";
+
+                                    return (
+                                        <div key={i} className={`aspect-square rounded-md border flex flex-col items-center justify-center relative overflow-hidden ${isToday ? 'border-primary ring-1 ring-primary/50 bg-primary/5' : isPast ? 'bg-muted/50' : 'bg-card'}`}>
+                                            <span className={`absolute top-1 left-1.5 text-[10px] font-bold z-10 ${hasUploaded ? 'text-white drop-shadow-md' : 'text-muted-foreground/70'}`}>{dayNum}</span>
+                                            {hasUploaded ? (
+                                                <>
+                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                    <img src={dayVerification.photoUrl} alt={`Day ${dayNum}`} className={`w-full h-full object-cover ${isFailed ? 'grayscale opacity-70' : 'opacity-90'}`} />
+                                                    <div className="absolute inset-0 flex items-center justify-center z-20">
+                                                        <div className={`${isFailed ? 'bg-red-500 border-red-600' : 'bg-green-500 border-green-600'} text-white ${hasMetTarget && !isFailed ? 'text-[6px] px-0.5' : 'text-[9px] px-1'} font-extrabold py-0.5 rounded-sm transform -rotate-12 border shadow-sm leading-none`}>
+                                                            {isFailed ? "FAILED" : (hasMetTarget ? "Congratulations!" : "VERIFIED")}
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </>
-                                        ) : (
-                                            isToday ? (
-                                                <div className="text-primary text-[10px] items-center text-center font-bold px-1 leading-tight animate-pulse mt-2">Today</div>
+                                                </>
                                             ) : (
-                                                <div className="w-1.5 h-1.5 rounded-full bg-border mt-2"></div>
-                                            )
-                                        )}
-                                    </div>
-                                )
-                            })}
+                                                isToday ? (
+                                                    <div className="text-primary text-[10px] items-center text-center font-bold px-1 leading-tight animate-pulse mt-2">Today</div>
+                                                ) : (
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-border mt-2"></div>
+                                                )
+                                            )}
+                                        </div>
+                                    )
+                                })
+                            })()}
                         </div>
                     </div>
                 </div>
@@ -393,40 +397,42 @@ function ActiveChallengeCard({ challenge }: { challenge: any }) {
                     <h4 className="font-bold flex items-center gap-2 mb-4 text-lg">
                         <Users className="w-5 h-5" /> Team Status Board
                     </h4>
-                    {challenge.isMatching ? (
-                        <div className="p-6 bg-secondary/10 rounded-2xl border border-dashed border-border/60">
-                            <div className="flex items-center gap-3 mb-4">
-                                <Clock className="w-6 h-6 text-primary animate-pulse" />
-                                <div>
-                                    <h5 className="font-semibold text-lg text-foreground">Matching in Progress...</h5>
-                                    <p className="text-sm text-muted-foreground">Currently matched with 2 users with a similar 80-90% target rate.</p>
+                    {
+                        challenge.isMatching ? (
+                            <div className="p-6 bg-secondary/10 rounded-2xl border border-dashed border-border/60">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <Clock className="w-6 h-6 text-primary animate-pulse" />
+                                    <div>
+                                        <h5 className="font-semibold text-lg text-foreground">Matching in Progress...</h5>
+                                        <p className="text-sm text-muted-foreground">Currently matched with 2 users with a similar 80-90% target rate.</p>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
+                                    <TeamMemberCard name="Me" status="success" streak={dayIndex} />
+                                    <TeamMemberCard name="IronMan (85%)" status="pending" streak={0} />
+                                    <TeamMemberCard name="SleepyDog (90%)" status="pending" streak={0} />
                                 </div>
                             </div>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
-                                <TeamMemberCard name="Me" status="success" streak={dayIndex} />
-                                <TeamMemberCard name="IronMan (85%)" status="pending" streak={0} />
-                                <TeamMemberCard name="SleepyDog (90%)" status="pending" streak={0} />
+                        ) : (
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                                <TeamMemberCard name="Me" status="success" streak={5} />
+                                <TeamMemberCard name="HabitKing" status="pending" streak={4} />
+                                <TeamMemberCard name="RunnerUp" status="failed" streak={0} />
+                                <TeamMemberCard name="SleepyHead" status="pending" streak={2} />
+                                <TeamMemberCard name="EarlyBird" status="success" streak={10} />
+                                <TeamMemberCard name="LetsDoIt" status="success" streak={8} />
+                                <TeamMemberCard name="NeverGiveUp" status="pending" streak={6} />
+                                <TeamMemberCard name="TryHard" status="failed" streak={0} />
+                                <TeamMemberCard name="IronWill" status="success" streak={15} />
+                                <TeamMemberCard name="LateBloomer" status="success" streak={3} />
+                                <TeamMemberCard name="GivesUpEasy" status="failed" streak={0} />
+                                <TeamMemberCard name="SteadyPace" status="pending" streak={5} />
                             </div>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                            <TeamMemberCard name="Me" status="success" streak={5} />
-                            <TeamMemberCard name="HabitKing" status="pending" streak={4} />
-                            <TeamMemberCard name="RunnerUp" status="failed" streak={0} />
-                            <TeamMemberCard name="SleepyHead" status="pending" streak={2} />
-                            <TeamMemberCard name="EarlyBird" status="success" streak={10} />
-                            <TeamMemberCard name="LetsDoIt" status="success" streak={8} />
-                            <TeamMemberCard name="NeverGiveUp" status="pending" streak={6} />
-                            <TeamMemberCard name="TryHard" status="failed" streak={0} />
-                            <TeamMemberCard name="IronWill" status="success" streak={15} />
-                            <TeamMemberCard name="LateBloomer" status="success" streak={3} />
-                            <TeamMemberCard name="GivesUpEasy" status="failed" streak={0} />
-                            <TeamMemberCard name="SteadyPace" status="pending" streak={5} />
-                        </div>
-                    )}
-                </div>
-            </CardContent>
-        </Card>
+                        )
+                    }
+                </div >
+            </CardContent >
+        </Card >
     );
 }
 

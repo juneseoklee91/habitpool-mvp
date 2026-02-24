@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { db, storage } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp, doc, getDoc } from "@/lib/firebase";
@@ -22,9 +22,23 @@ export default function VerifyPage() {
     const { toast } = useToast();
 
     const challengeId = params.id as string;
+    const [challenge, setChallenge] = useState<any>(null);
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
     const [isUploading, setIsUploading] = useState(false);
+
+    // Fetch challenge details to know the target time
+    useEffect(() => {
+        async function fetchChallenge() {
+            if (!challengeId) return;
+            const docRef = doc(db, "challenges", challengeId);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                setChallenge(docSnap.data());
+            }
+        }
+        fetchChallenge();
+    }, [challengeId]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -35,10 +49,30 @@ export default function VerifyPage() {
     };
 
     const handleUpload = async () => {
-        if (!file || !user) return;
+        if (!file || !user || !challenge) return;
         setIsUploading(true);
 
         try {
+            // Validate Upload Time for Wakeup Challenges
+            let uploadStatus = "success";
+            let statusMessage = "Today's habit photo has been successfully recorded.";
+
+            if (challenge.type === "wakeup" && challenge.targetTime) {
+                const now = new Date();
+                const [targetHH, targetMM] = challenge.targetTime.split(":").map(Number);
+
+                const targetDate = new Date();
+                targetDate.setHours(targetHH, targetMM, 0, 0);
+
+                const diffMs = now.getTime() - targetDate.getTime();
+                const diffMins = diffMs / (1000 * 60);
+
+                if (Math.abs(diffMins) > 30) {
+                    uploadStatus = "failed";
+                    statusMessage = "Upload recorded as FAILED. Wake-up verification must be done within ±30 minutes of the target time.";
+                }
+            }
+
             // Create a unique filename for storage
             const fileName = `${user.uid}_${Date.now()}_${file.name}`;
             const storageRef = ref(storage, `verifications/${challengeId}/${fileName}`);
@@ -48,18 +82,21 @@ export default function VerifyPage() {
             const downloadURL = await getDownloadURL(snapshot.ref);
 
             // Save to Firestore verifications collection
-            // Core logic: Time validation should be handled via Cloud Functions in production
-            // For MVP, we trust the client upload intention, but stamp it with server time
             await addDoc(collection(db, "verifications"), {
                 challengeId,
                 userId: user.uid,
                 photoUrl: downloadURL,
-                status: "success", // Ideally validated via server (e.g., targetTime window check)
+                status: uploadStatus,
                 verifiedAt: serverTimestamp(),
                 deviceTime: new Date().toISOString(),
             });
 
-            toast({ title: "Verification Completed!", description: "Today's habit photo has been successfully recorded." });
+            if (uploadStatus === "failed") {
+                toast({ variant: "destructive", title: "Verification Failed", description: statusMessage });
+            } else {
+                toast({ title: "Verification Completed!", description: statusMessage });
+            }
+
             router.push("/dashboard");
 
         } catch (error) {
