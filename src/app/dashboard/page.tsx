@@ -168,11 +168,11 @@ export default function DashboardPage() {
                                 </li>
                                 <li className="flex justify-between items-center border-b pb-3">
                                     <span className="text-muted-foreground">Distribution per Survivor (1/8)</span>
-                                    <span className="font-bold text-primary">+$22.50</span>
+                                    <span className="font-bold text-primary">+$72.50</span>
                                 </li>
                                 <li className="flex justify-between items-center bg-primary/10 p-3 rounded-lg font-bold text-lg text-primary">
                                     <span>Total Secured Amount</span>
-                                    <span className="flex items-center gap-1"><TrendingUp className="w-5 h-5" /> $72.50</span>
+                                    <span className="flex items-center gap-1"><TrendingUp className="w-5 h-5" /> $122.50</span>
                                 </li>
                             </ul>
 
@@ -187,7 +187,7 @@ export default function DashboardPage() {
                                 </Button>
                                 <Button className="bg-green-600 hover:bg-green-700 text-white" asChild>
                                     <Link href="/points">
-                                        Claim Reward ($22.50)
+                                        Claim Reward ($72.50)
                                     </Link>
                                 </Button>
                             </div>
