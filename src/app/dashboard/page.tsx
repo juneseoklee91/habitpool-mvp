@@ -49,6 +49,20 @@ export default function DashboardPage() {
                 const snap = await getDocs(q);
                 let data = snap.docs.map((d: any) => ({ id: d.id, ...d.data() }));
 
+                // Fetch verifications for this user
+                const vQ = query(
+                    collection(db, "verifications"),
+                    where("userId", "==", user.uid)
+                );
+                const vSnap = await getDocs(vQ);
+                const userVerifications = vSnap.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+
+                // Attach verifications to respective challenges
+                data = data.map((c: any) => ({
+                    ...c,
+                    userVerifications: userVerifications.filter((v: any) => v.challengeId === c.id)
+                }));
+
                 // For MVP demonstration: if user has no active challenges, inject a fake one
                 if (data.length === 0) {
                     data = [{
@@ -60,7 +74,8 @@ export default function DashboardPage() {
                         status: "active",
                         isMatching: true,
                         userId: user.uid,
-                        createdAt: Date.now() - 86400000 * 5 // started 5 days ago
+                        createdAt: Date.now() - 86400000 * 5, // started 5 days ago
+                        userVerifications: [] // No real verifications for mock
                     }];
                 }
 
@@ -335,15 +350,24 @@ function ActiveChallengeCard({ challenge }: { challenge: any }) {
                                 const isToday = dayNum === dayIndex;
                                 const isPast = dayNum < dayIndex;
 
-                                // Mock that Day 1 has an uploaded image and a stamp
-                                const hasUploadedDay1 = dayNum === 1;
+                                // Find if there's a verification for this specific day index
+                                // Relies on the parent component passing userVerifications. In MVP, we map by the date it was uploaded
+                                // For MVP demo, check if verifications exist and match the relative day
+                                const dayVerification = challenge.userVerifications?.find((v: any) => {
+                                    const vDate = v.verifiedAt?.seconds ? v.verifiedAt.seconds * 1000 : new Date(v.verifiedAt || v.deviceTime).getTime();
+                                    const vDayIndex = Math.floor((vDate - createdAtMillis) / (1000 * 60 * 60 * 24)) + 1;
+                                    return vDayIndex === dayNum;
+                                });
+
+                                const hasUploaded = !!dayVerification;
 
                                 return (
                                     <div key={i} className={`aspect-square rounded-md border flex flex-col items-center justify-center relative overflow-hidden ${isToday ? 'border-primary ring-1 ring-primary/50 bg-primary/5' : isPast ? 'bg-muted/50' : 'bg-card'}`}>
-                                        <span className="absolute top-1 left-1.5 text-[10px] font-bold text-muted-foreground/70 z-10">{dayNum}</span>
-                                        {hasUploadedDay1 ? (
+                                        <span className={`absolute top-1 left-1.5 text-[10px] font-bold z-10 ${hasUploaded ? 'text-white drop-shadow-md' : 'text-muted-foreground/70'}`}>{dayNum}</span>
+                                        {hasUploaded ? (
                                             <>
-                                                <img src="https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=100&h=100&fit=crop" alt="Day 1" className="w-full h-full object-cover opacity-70" />
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img src={dayVerification.photoUrl} alt={`Day ${dayNum}`} className="w-full h-full object-cover opacity-90" />
                                                 <div className="absolute inset-0 flex items-center justify-center z-20">
                                                     <div className="bg-green-500 text-white text-[9px] font-extrabold px-1 py-0.5 rounded-sm transform -rotate-12 border border-green-600 shadow-sm leading-none">
                                                         VERIFIED
