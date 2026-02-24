@@ -249,28 +249,47 @@ export default function DashboardPage() {
 
 function ActiveChallengeCard({ challenge }: { challenge: any }) {
     const { toast } = useToast();
-    // MVP Fake data for demonstration
-    const progressPercent = 35; // e.g. 10 days out of 30
+
+    // Calculate days passed and remaining (30-day challenge)
+    const createdAtMillis = challenge.createdAt?.toMillis ? challenge.createdAt.toMillis() : (challenge.createdAt || Date.now());
+    const daysPassed = Math.floor((Date.now() - createdAtMillis) / (1000 * 60 * 60 * 24));
+    const remainingDays = Math.max(0, 30 - daysPassed);
+
+    // MVP Fake progression data
+    const progressPercent = Math.min(100, (daysPassed / 30) * 100);
+
+    // Simulated Matching Logic
+    const isMatching = challenge.isMatching;
+    const isDayTwoRelaxed = isMatching && daysPassed >= 1;
+    const simulatedMembers = isDayTwoRelaxed ? "5명 (80~95% 유사 그룹 병합)" : "1명";
 
     // Checking if photo upload is allowed right now
-    const canUpload = true; // TODO: Implement exact time logic based on type
+    const canUpload = true;
 
     return (
-        <Card className="overflow-hidden border-border/50 bg-card">
-            <CardHeader className="bg-muted/30 pb-4 border-b border-border/50">
-                <div className="flex justify-between items-center mb-2">
-                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-semibold">
-                        {challenge.type === "wakeup" ? `Wake-up Target: ${challenge.targetTime}` : "Regular Verification"}
-                    </span>
-                    <span className="text-muted-foreground text-sm font-medium">
-                        Remaining: 20 days
-                    </span>
-                </div>
-                <CardTitle className="text-2xl">{challenge.title}</CardTitle>
-                <CardDescription>
-                    My Pledge: ${challenge.entryFee} ({challenge.targetSuccessRate}% Target Group)
-                </CardDescription>
-            </CardHeader>
+        <Card className="overflow-hidden border-border/50 bg-card hover:border-primary/50 transition-colors">
+            <Link href={`/dashboard/${challenge.id}/verify`} className="block">
+                <CardHeader className="bg-muted/30 pb-4 border-b border-border/50 hover:bg-muted/50 cursor-pointer transition-colors">
+                    <div className="flex justify-between items-center mb-2">
+                        <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-semibold">
+                            {challenge.type === "wakeup" ? `Wake-up Target: ${challenge.targetTime}` : "Regular Verification"}
+                        </span>
+                        <span className="text-muted-foreground text-sm font-medium">
+                            Remaining: {remainingDays} days
+                        </span>
+                    </div>
+                    <CardTitle className="text-2xl">{challenge.title}</CardTitle>
+                    <CardDescription>
+                        <div className="mb-2">My Pledge: ${challenge.entryFee} ({challenge.targetSuccessRate}% Target Group)</div>
+                        {isMatching && (
+                            <div className="text-primary font-semibold text-sm bg-primary/10 p-2 rounded-md inline-block">
+                                ⏳ 팀원 매칭 중... (현재 {simulatedMembers})
+                                {!isDayTwoRelaxed ? " - 2일차에는 최소 5명 팀을 위해 유사 목표 그룹과 자동 병합됩니다." : ""}
+                            </div>
+                        )}
+                    </CardDescription>
+                </CardHeader>
+            </Link>
 
             <CardContent className="p-6">
                 {/* Upload Section */}
