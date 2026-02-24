@@ -11,24 +11,24 @@ export default function Home() {
 
         <div className="mx-auto max-w-4xl z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary mb-8 text-sm font-semibold border border-primary/20">
-            <Trophy className="w-4 h-4" /> 성공하면 보상받는 습관 형성 플랫폼
+            <Trophy className="w-4 h-4" /> The Performance-Based Habit Platform
           </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-foreground to-foreground/60 mb-6 leading-[1.15]">
-            포기하고 싶을 때도<br />
-            <span className="text-primary">당신을 움직이게 만듭니다.</span>
+            A habit system that keeps you going,<br />
+            <span className="text-primary">even when you want to quit.</span>
           </h1>
           <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-            원하는 금액을 걸고 습관을 증명하세요. 스스로의 의지를 돈으로 묶고, 실패한 사람들의 예치금은 성공한 사람들에게 상금으로 분배됩니다.
+            Commit your money and prove your habits. Your pledge locks in your willpower. When participants fail, their entry fees are distributed to the successful members as a reward.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button size="lg" className="h-14 px-8 text-lg w-full sm:w-auto font-bold rounded-full shadow-lg shadow-primary/25 hover:scale-105 transition-transform" asChild>
               <Link href="/challenges/new">
-                챌린지 시작하기 <ArrowRight className="ml-2 h-5 w-5" />
+                Start a Challenge <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
             <Button size="lg" variant="outline" className="h-14 px-8 text-lg w-full sm:w-auto font-bold rounded-full backdrop-blur-sm bg-background/50 border-primary/20 hover:bg-primary/5 transition-transform" asChild>
               <a href="#how-it-works">
-                어떻게 진행되나요?
+                How It Works
               </a>
             </Button>
           </div>
@@ -86,10 +86,10 @@ export default function Home() {
         <div className="container mx-auto px-6 lg:px-8 max-w-6xl">
           <div className="mb-20 text-center">
             <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl text-foreground mb-4">
-              어떻게 진행되나요?
+              How It Works
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              단순하지만 강력한 4단계 시스템으로 당신의 성공을 강제합니다.
+              A simple yet powerful 4-step system to enforce your success.
             </p>
           </div>
 
@@ -99,9 +99,9 @@ export default function Home() {
             <div className="flex flex-col md:flex-row items-center gap-12">
               <div className="flex-1 space-y-6">
                 <div className="w-12 h-12 rounded-2xl bg-primary/20 text-primary flex items-center justify-center text-xl font-black">1</div>
-                <h3 className="text-3xl font-bold">원하는 금액으로 참여</h3>
+                <h3 className="text-3xl font-bold">Choose Your Pledge</h3>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  자신의 의지만큼 돈을 거세요. 최소 $10부터 원하는 만큼 예치금을 설정할 수 있습니다. 잃고 싶지 않은 금액일수록 성공 확률은 기하급수적으로 올라갑니다.
+                  Put money on the line to match your willpower. You can set your pledge starting from $10. The more you don't want to lose, the exponentially higher your success rate becomes.
                 </p>
               </div>
               <div className="flex-1 w-full">
@@ -122,9 +122,9 @@ export default function Home() {
             <div className="flex flex-col md:flex-row-reverse items-center gap-12">
               <div className="flex-1 space-y-6">
                 <div className="w-12 h-12 rounded-2xl bg-blue-500/20 text-blue-500 flex items-center justify-center text-xl font-black">2</div>
-                <h3 className="text-3xl font-bold">비슷한 성공률끼리 우선 매칭</h3>
+                <h3 className="text-3xl font-bold">Matched by Target Success Rate</h3>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  목표 달성률이 비슷한 12명의 익명 유저들과 한 팀으로 묶입니다. 경쟁과 협력이 동시에 일어나는 최적의 인원수로 한 달간 챌린지를 진행합니다.
+                  You will be grouped with up to 12 anonymous users who share a similar target success rate. This optimal team size creates a balance of competition and cooperation for a full month.
                 </p>
               </div>
               <div className="flex-1 w-full">
@@ -150,9 +150,9 @@ export default function Home() {
             <div className="flex flex-col md:flex-row items-center gap-12">
               <div className="flex-1 space-y-6">
                 <div className="w-12 h-12 rounded-2xl bg-orange-500/20 text-orange-500 flex items-center justify-center text-xl font-black">3</div>
-                <h3 className="text-3xl font-bold">매일 사진 인증</h3>
+                <h3 className="text-3xl font-bold">Daily Photo Verification</h3>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  변명은 통하지 않습니다. 규칙대로 매일 사진을 찍어 올려야만 인증됩니다. 실시간 팀 보드에서 누가 살아남고 누가 탈락하는지 지켜보세요.
+                  No excuses allowed. You must verify by taking a photo every day according to the rules. Watch your live team board to see who survives and who drops out.
                 </p>
               </div>
               <div className="flex-1 w-full">
@@ -173,9 +173,9 @@ export default function Home() {
             <div className="flex flex-col md:flex-row-reverse items-center gap-12">
               <div className="flex-1 space-y-6">
                 <div className="w-12 h-12 rounded-2xl bg-green-500/20 text-green-500 flex items-center justify-center text-xl font-black">4</div>
-                <h3 className="text-3xl font-bold">성과에 따라 보상 분배</h3>
+                <h3 className="text-3xl font-bold">Performance-Based Rewards</h3>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  중도 포기한 사람들의 예치금은 수수료를 제외하고 최종 생존자들에게 1/N로 분배됩니다. 습관도 만들고, 상금도 얻어가는 완벽한 동기부여를 경험하세요.
+                  The pledges of those who fail are divided equally among the final survivors (minus a small platform fee). Build your habits and earn prize money for the perfect motivation.
                 </p>
               </div>
               <div className="flex-1 w-full">
@@ -205,10 +205,10 @@ export default function Home() {
 
       {/* Bottom CTA */}
       <section className="py-24 text-center px-6">
-        <h2 className="text-3xl md:text-5xl font-black mb-8">준비되셨나요?</h2>
+        <h2 className="text-3xl md:text-5xl font-black mb-8">Ready to get started?</h2>
         <Button size="lg" className="h-16 px-10 text-xl rounded-full shadow-xl shadow-primary/20 hover:scale-105 transition-transform" asChild>
           <Link href="/challenges/new">
-            지금 챌린지 시작하기 <ArrowRight className="ml-2 h-6 w-6" />
+            Start a Challenge Now <ArrowRight className="ml-2 h-6 w-6" />
           </Link>
         </Button>
       </section>
