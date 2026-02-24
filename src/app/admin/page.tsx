@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase";
-import { collection, query, getDocs, doc, updateDoc, orderBy } from "@/lib/firebase";
+import { collection, query, getDocs, doc, updateDoc, orderBy, where, getDoc } from "@/lib/firebase";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -32,7 +32,42 @@ export default function AdminDashboard() {
     const fetchWithdrawals = async () => {
         const q = query(collection(db, "withdrawals"), orderBy("requestedAt", "desc"));
         const snap = await getDocs(q);
-        setWithdrawals(snap.docs.map((doc: any) => ({ id: doc.id, ...doc.data() })));
+
+        const withdrawalData = await Promise.all(snap.docs.map(async (withdrawalDoc: any) => {
+            const data = withdrawalDoc.data();
+            let userStats = { total: 0, success: 0, failed: 0 };
+
+            // Fetch user's challenge history stats
+            if (data.userId) {
+                try {
+                    const userChallengesQ = query(collection(db, "challenges"), where("userId", "==", data.userId));
+                    const userChallengesSnap = await getDocs(userChallengesQ);
+
+                    userChallengesSnap.docs.forEach((c: any) => {
+                        const cData = c.data();
+                        userStats.total += 1;
+                        if (cData.status === "completed") userStats.success += 1;
+                        if (cData.status === "failed") userStats.failed += 1;
+                    });
+                } catch (e) {
+                    console.error("Error fetching user stats", e);
+                }
+            }
+
+            // For the sake of the MVP MVP Demo, if no challenge info is attached, use default text
+            const challengeName = data.challengeId
+                ? "Challenge ID: " + data.challengeId
+                : (data.type === "refund" ? "Pledge Refund" : "Reward Claim");
+
+            return {
+                id: withdrawalDoc.id,
+                ...data,
+                userStats,
+                challengeName
+            };
+        }));
+
+        setWithdrawals(withdrawalData);
     };
 
     const handleUpdateStatus = async (id: string, newStatus: string) => {
@@ -66,8 +101,8 @@ export default function AdminDashboard() {
                         <table className="w-full text-sm text-left border rounded-lg overflow-hidden">
                             <thead className="bg-muted">
                                 <tr>
-                                    <th className="px-4 py-3 font-medium text-muted-foreground">User ID</th>
-                                    <th className="px-4 py-3 font-medium text-muted-foreground">Amount</th>
+                                    <th className="px-4 py-3 font-medium text-muted-foreground">User ID & History</th>
+                                    <th className="px-4 py-3 font-medium text-muted-foreground">Request Details</th>
                                     <th className="px-4 py-3 font-medium text-muted-foreground">PayPal Email</th>
                                     <th className="px-4 py-3 font-medium text-muted-foreground">Status</th>
                                     <th className="px-4 py-3 font-medium text-right text-muted-foreground">Action (Manual)</th>
@@ -81,11 +116,22 @@ export default function AdminDashboard() {
                                 ) : (
                                     withdrawals.map((w) => (
                                         <tr key={w.id} className="border-b last:border-0 hover:bg-muted/20">
-                                            <td className="px-4 py-3 font-mono text-xs">{w.userId?.slice(0, 8)}...</td>
-                                            <td className="px-4 py-3 font-bold">
-                                                ${w.amount}
-                                                {w.type === "refund" && <span className="ml-2 text-xs font-medium text-red-600 bg-red-100 px-1.5 py-0.5 rounded border border-red-200">Pledge Refund</span>}
-                                                {(!w.type || w.type === "reward") && <span className="ml-2 text-xs font-medium text-green-600 bg-green-100 px-1.5 py-0.5 rounded border border-green-200">Reward Claim</span>}
+                                            <td className="px-4 py-3">
+                                                <div className="font-mono text-xs mb-1">{w.userId?.slice(0, 8)}...</div>
+                                                <div className="text-[10px] text-muted-foreground font-medium">
+                                                    Challenges: <span className="text-foreground">{w.userStats?.total || 1}</span> Total
+                                                    (<span className="text-green-600">{w.userStats?.success || 0}</span> W / <span className="text-red-600">{w.userStats?.failed || 0}</span> L)
+                                                </div>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <div className="font-bold mb-1">
+                                                    ${w.amount}
+                                                    {w.type === "refund" && <span className="ml-2 text-xs font-medium text-red-600 bg-red-100 px-1.5 py-0.5 rounded border border-red-200">Refund</span>}
+                                                    {(!w.type || w.type === "reward") && <span className="ml-2 text-xs font-medium text-green-600 bg-green-100 px-1.5 py-0.5 rounded border border-green-200">Reward</span>}
+                                                </div>
+                                                <div className="text-xs text-muted-foreground truncate max-w-[200px]" title={w.challengeName}>
+                                                    {w.challengeName}
+                                                </div>
                                             </td>
                                             <td className="px-4 py-3">{w.paypalEmail}</td>
                                             <td className="px-4 py-3">
