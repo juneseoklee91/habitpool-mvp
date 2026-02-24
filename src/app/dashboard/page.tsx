@@ -141,11 +141,11 @@ export default function DashboardPage() {
                                 </li>
                                 <li className="flex justify-between items-center bg-green-500/10 p-3 rounded-lg border border-green-500/20">
                                     <span className="text-green-700 dark:text-green-400">100% Success (Survivors)</span>
-                                    <span className="font-bold text-green-700 dark:text-green-400">8 people (Inc. me)</span>
+                                    <span className="font-bold text-green-700 dark:text-green-400">4 people (Inc. me)</span>
                                 </li>
                                 <li className="flex justify-between items-center bg-red-500/10 p-3 rounded-lg border border-red-500/20">
-                                    <span className="text-red-700 dark:text-red-400">Dropouts & Failures (33%)</span>
-                                    <span className="font-bold text-red-700 dark:text-red-400">4 people</span>
+                                    <span className="text-red-700 dark:text-red-400">Dropouts & Failures (67%)</span>
+                                    <span className="font-bold text-red-700 dark:text-red-400">8 people</span>
                                 </li>
                             </ul>
                         </div>
@@ -159,20 +159,20 @@ export default function DashboardPage() {
                                     <span className="font-semibold">$50.00</span>
                                 </li>
                                 <li className="flex justify-between items-center">
-                                    <span className="text-muted-foreground">Failed Users Pledge Pool (4 ppl)</span>
-                                    <span className="font-semibold text-red-500/80">+$200.00</span>
+                                    <span className="text-muted-foreground">Failed Users Pledge Pool (8 ppl)</span>
+                                    <span className="font-semibold text-red-500/80">+$400.00</span>
                                 </li>
                                 <li className="flex justify-between items-center">
                                     <span className="text-muted-foreground">Platform Fee (10%)</span>
-                                    <span className="font-semibold text-muted-foreground">-$20.00</span>
+                                    <span className="font-semibold text-muted-foreground">-$40.00</span>
                                 </li>
                                 <li className="flex justify-between items-center border-b pb-3">
-                                    <span className="text-muted-foreground">Distribution per Survivor (1/8)</span>
-                                    <span className="font-bold text-primary">+$72.50</span>
+                                    <span className="text-muted-foreground">Distribution per Survivor (1/4)</span>
+                                    <span className="font-bold text-primary">+$90.00</span>
                                 </li>
                                 <li className="flex justify-between items-center bg-primary/10 p-3 rounded-lg font-bold text-lg text-primary">
                                     <span>Total Secured Amount</span>
-                                    <span className="flex items-center gap-1"><TrendingUp className="w-5 h-5" /> $122.50</span>
+                                    <span className="flex items-center gap-1"><TrendingUp className="w-5 h-5" /> $140.00</span>
                                 </li>
                             </ul>
 
@@ -187,7 +187,7 @@ export default function DashboardPage() {
                                 </Button>
                                 <Button className="bg-green-600 hover:bg-green-700 text-white" asChild>
                                     <Link href="/points">
-                                        Claim Reward ($72.50)
+                                        Claim Reward ($90.00)
                                     </Link>
                                 </Button>
                             </div>
