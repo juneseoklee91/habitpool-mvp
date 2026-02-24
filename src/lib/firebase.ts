@@ -126,7 +126,7 @@ export const getDoc = async (docRef: any) => {
   if (docRef.collectionName === "users" && docRef.id === "demo-id") {
     return {
       exists: () => true,
-      data: () => ({ email: "demo@habit.com", nickname: "성실한데모유저", pointBalance: 22.5, role: "user" })
+      data: () => ({ email: "demo@habit.com", nickname: "성실한데모유저", pointBalance: 70, role: "user" })
     };
   }
   const docs = getLocalData(docRef.collectionName);

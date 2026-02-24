@@ -117,9 +117,9 @@ export default function AdminDashboard() {
                                     withdrawals.map((w) => (
                                         <tr key={w.id} className="border-b last:border-0 hover:bg-muted/20">
                                             <td className="px-4 py-3">
-                                                <div className="font-mono text-xs mb-1">{w.userId?.slice(0, 8)}...</div>
+                                                <div className="font-mono text-xs mb-1">{w.userId ? w.userId.slice(0, 8) : "Unknown"}...</div>
                                                 <div className="text-[10px] text-muted-foreground font-medium">
-                                                    Challenges: <span className="text-foreground">{w.userStats?.total || 1}</span> Total
+                                                    Challenges: <span className="text-foreground">{w.userStats?.total || 0}</span> Total
                                                     (<span className="text-green-600">{w.userStats?.success || 0}</span> W / <span className="text-red-600">{w.userStats?.failed || 0}</span> L)
                                                 </div>
                                             </td>
@@ -129,8 +129,8 @@ export default function AdminDashboard() {
                                                     {w.type === "refund" && <span className="ml-2 text-xs font-medium text-red-600 bg-red-100 px-1.5 py-0.5 rounded border border-red-200">Refund</span>}
                                                     {(!w.type || w.type === "reward") && <span className="ml-2 text-xs font-medium text-green-600 bg-green-100 px-1.5 py-0.5 rounded border border-green-200">Reward</span>}
                                                 </div>
-                                                <div className="text-xs text-muted-foreground truncate max-w-[200px]" title={w.challengeName}>
-                                                    {w.challengeName}
+                                                <div className="text-xs text-muted-foreground truncate max-w-[200px]" title={w.challengeName || "No Challenge"}>
+                                                    {w.challengeName || "No Challenge Data"}
                                                 </div>
                                             </td>
                                             <td className="px-4 py-3">{w.paypalEmail}</td>
