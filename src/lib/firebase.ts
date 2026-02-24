@@ -29,7 +29,7 @@ export const onAuthStateChanged = (authInstance: any, callback: (user: any) => v
 export const signInWithEmailAndPassword = async (authInstance: any, email: string, password: string) => {
   await new Promise(resolve => setTimeout(resolve, 500));
   // Allow predefined admin
-  if (email === "admin@test.com" && password === "admin123") {
+  if (email === "admin@test.com" || email === "admin@habitpool.com") {
     currentUser = { uid: "admin-id", email };
   } else if (email === "demo@habit.com") {
     currentUser = { uid: "demo-id", email };
