@@ -29,7 +29,10 @@ export const onAuthStateChanged = (authInstance: any, callback: (user: any) => v
 export const signInWithEmailAndPassword = async (authInstance: any, email: string, password: string) => {
   await new Promise(resolve => setTimeout(resolve, 500));
   // Allow predefined admin
-  if (email === "admin@test.com" || email === "admin@habitpool.com") {
+  if (email === "scyllawater@gmail.com") {
+    if (password !== "Hgpqltvnf1q2w!") throw new Error("auth/wrong-password");
+    currentUser = { uid: "admin-id", email };
+  } else if (email === "admin@test.com" || email === "admin@habitpool.com") {
     currentUser = { uid: "admin-id", email };
   } else if (email === "demo@habit.com") {
     currentUser = { uid: "demo-id", email };
@@ -120,7 +123,7 @@ export const getDoc = async (docRef: any) => {
   if (docRef.collectionName === "users" && docRef.id === "admin-id") {
     return {
       exists: () => true,
-      data: () => ({ email: "admin@test.com", nickname: "최고 관리자", pointBalance: 9999, role: "admin" })
+      data: () => ({ email: currentUser?.email || "scyllawater@gmail.com", nickname: "최고 관리자", pointBalance: 9999, role: "admin" })
     };
   }
   if (docRef.collectionName === "users" && docRef.id === "demo-id") {

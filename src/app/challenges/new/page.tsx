@@ -6,12 +6,13 @@ import { db } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
 export default function NewChallengePage() {
     const { user } = useAuth();
@@ -47,25 +48,10 @@ export default function NewChallengePage() {
         }).sort((a, b) => a.offset - b.offset);
     }, []);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!user) {
-            toast({ title: "Login Required", description: "Please log in to join a challenge.", variant: "destructive" });
-            router.push("/login");
-            return;
-        }
-
-        if (entryFee < 10) {
-            toast({ title: "Invalid Amount", description: "Pledge amount must be at least $10.", variant: "destructive" });
-            return;
-        }
-
+    const handleChallengeCreation = async (paymentId: string) => {
         setIsSubmitting(true);
         try {
-            // Simulate Payment
-            await new Promise(resolve => setTimeout(resolve, 1500));
-
-            // Save to Firestore
+            // Save to Firestore with real payment ID reference
             const challengeRef = await addDoc(collection(db, "challenges"), {
                 userId: user.uid,
                 title,
@@ -76,16 +62,18 @@ export default function NewChallengePage() {
                 targetSuccessRate: targetSuccessRate[0],
                 status: "active", // Set to active immediately for MVP
                 isMatching: true, // Show matching status on team board
+                paypalPaymentId: paymentId,
                 createdAt: serverTimestamp(),
             });
 
             toast({
-                title: "Successfully Joined! (Payment simulated)",
-                description: "You have joined the challenge! You can start verifying immediately while waiting for a full team."
+                title: "Payment Successful & Joined!",
+                description: `Successfully paid $${entryFee} via PayPal. You can start verifying immediately.`
             });
             router.push("/dashboard");
         } catch (error) {
-            toast({ title: "Error", description: "Failed to create challenge.", variant: "destructive" });
+            console.error(error);
+            toast({ title: "Error", description: "Failed to create challenge after payment.", variant: "destructive" });
         } finally {
             setIsSubmitting(false);
         }
@@ -102,7 +90,7 @@ export default function NewChallengePage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-8">
+                    <form onSubmit={(e) => e.preventDefault()} className="space-y-8">
                         <div className="space-y-2">
                             <Label htmlFor="title">What habit do you want to build?</Label>
                             <Input
@@ -216,7 +204,7 @@ export default function NewChallengePage() {
                             </p>
                         </div>
 
-                        <div className="bg-primary/5 p-4 rounded-xl border border-primary/20 mt-8">
+                        <div className="bg-primary/5 p-4 rounded-xl border border-primary/20 mt-8 mb-4">
                             <h4 className="font-semibold mb-2">Please Read</h4>
                             <ul className="text-sm space-y-2 text-muted-foreground list-disc list-inside">
                                 <li>Pledge is fully refunded upon 100% challenge completion.</li>
@@ -226,9 +214,72 @@ export default function NewChallengePage() {
                             </ul>
                         </div>
 
-                        <Button type="submit" size="lg" className="w-full text-lg h-14 rounded-xl" disabled={isSubmitting}>
-                            {isSubmitting ? "Simulating Payment..." : `Pay and Join Challenge ($${entryFee})`}
-                        </Button>
+                        {/* Real PayPal Checkout */}
+                        {!user ? (
+                            <Button type="button" size="lg" className="w-full text-lg h-14 rounded-xl" onClick={() => {
+                                toast({ title: "Login Required", description: "Please log in to join a challenge.", variant: "destructive" });
+                                router.push("/login");
+                            }}>
+                                Login to Pay and Join
+                            </Button>
+                        ) : title.trim().length === 0 || entryFee < 10 ? (
+                            <Button type="button" size="lg" className="w-full text-lg h-14 rounded-xl" disabled>
+                                Enter title and minimum $10 pledge to proceed
+                            </Button>
+                        ) : isSubmitting ? (
+                            <Button type="button" size="lg" className="w-full text-lg h-14 rounded-xl" disabled>
+                                Processing payment...
+                            </Button>
+                        ) : (
+                            <div className="mt-4 border-t pt-6">
+                                <PayPalScriptProvider options={{
+                                    clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "test",
+                                    currency: "USD"
+                                }}>
+                                    <PayPalButtons
+                                        style={{ layout: "vertical", shape: "rect", color: "blue" }}
+                                        createOrder={(data, actions) => {
+                                            return actions.order.create({
+                                                intent: "CAPTURE",
+                                                purchase_units: [
+                                                    {
+                                                        amount: {
+                                                            value: entryFee.toString(),
+                                                            currency_code: "USD"
+                                                        },
+                                                        description: `HabitPool Challenge: ${title}`
+                                                    }
+                                                ]
+                                            });
+                                        }}
+                                        onApprove={async (data, actions) => {
+                                            if (actions.order) {
+                                                try {
+                                                    const details = await actions.order.capture();
+                                                    // Payment officially successful here
+                                                    await handleChallengeCreation(details.id as string);
+                                                } catch (err) {
+                                                    console.error("PayPal Capture Error:", err);
+                                                    toast({
+                                                        title: "Payment Capture Failed",
+                                                        description: "We couldn't verify the transaction.",
+                                                        variant: "destructive"
+                                                    });
+                                                }
+                                            }
+                                        }}
+                                        onError={(err) => {
+                                            console.error("PayPal Error:", err);
+                                            toast({
+                                                title: "Payment Error",
+                                                description: "The PayPal window was closed or failed.",
+                                                variant: "destructive"
+                                            });
+                                        }}
+                                    />
+                                </PayPalScriptProvider>
+                            </div>
+                        )}
                     </form>
                 </CardContent>
             </Card>

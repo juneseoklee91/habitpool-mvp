@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
                     if (docSnap.exists()) {
                         const data = docSnap.data() as UserProfile;
-                        if (firebaseUser.email === "admin@habitpool.com" && data.role !== "admin") {
+                        if ((firebaseUser.email === "admin@habitpool.com" || firebaseUser.email === "scyllawater@gmail.com") && data.role !== "admin") {
                             data.role = "admin";
                             await updateDoc(userRef, { role: "admin" });
                         }
@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                             nickname: firebaseUser.displayName || firebaseUser.email?.split("@")[0] || "User",
                             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                             pointBalance: 0,
-                            role: firebaseUser.email === "admin@habitpool.com" ? "admin" : "user",
+                            role: (firebaseUser.email === "admin@habitpool.com" || firebaseUser.email === "scyllawater@gmail.com") ? "admin" : "user",
                         };
                         await setDoc(userRef, defaultProfile);
                         setProfile(defaultProfile);
